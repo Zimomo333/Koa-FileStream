@@ -7,24 +7,26 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   </head>
   <body>
+    <!-- 方法一：ajax下载，将返回的二进制流转换成Blob对象，不会跳转页面，可监测下载进度 -->
     <button type="button" onclick="downloadFile()">下载</button>
+    <!-- 方法二：a标签跳转下载，下载错误时会跳转到新页面，提示Not Found -->
+    <a href="http://139.9.182.180:3000">下载</a>
     <script>
       function downloadFile() {
-        let url = '127.0.0.1:3000'
-        console.log(url)
+        let url = 'http://139.9.182.180:3000'
         axios
           .get(url, { responseType: 'blob' }) // arraybuffer也可以
-          .then(({ data }) => {
-            console.log(data)
+          .then(res => {
             // params：object 可选: File对象、Blob对象、MediaSource对象。
-            let contentUrl = window.URL.createObjectURL(new Blob([data]))
+            let contentUrl = window.URL.createObjectURL(new Blob([res.data]))
             let link = document.createElement('a')
             link.style.display = 'none'
             link.href = contentUrl
-            link.setAttribute('download', 'test.txt') // 文件名称，这里很重要，如果没有完整的文件名(包括扩展名)，下载下来还需要自行添加
+            link.setAttribute('download', res.headers.filename) // 文件名称，很重要，从headers中获取自定义header:filename
             document.body.appendChild(link)
             link.click()
-            window.URL.revokeObjectURL(contentUrl)
+            window.URL.revokeObjectURL(contentUrl) // 释放url资源
+            document.body.removeChild(link)
           })
       }
     </script>

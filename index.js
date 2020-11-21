@@ -1,14 +1,15 @@
 const Koa = require('koa')
-const app = new Koa()
 const fs = require('fs')
+const cors = require('koa2-cors') // 允许跨域
+
+const app = new Koa()
+app.use(cors())
 
 app.use(async ctx => {
-  const fileData = fs.createReadStream('./test.xlsx')
-  ctx.response.set(
-    'content-type',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-  )
-  ctx.response.set('Content-Disposition', 'attachment;filename=test.xlsx')
+  var fileName = 'test.xlsx'
+  const fileData = fs.createReadStream('./' + fileName)
+  ctx.response.set('filename', fileName)
+  ctx.response.set('Access-Control-Expose-Headers', 'filename') // 允许自定义响应头
   ctx.body = fileData
 })
 
